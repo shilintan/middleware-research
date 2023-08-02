@@ -235,7 +235,7 @@ plugins: "rabbitmq_management rabbitmq_peer_discovery_k8s,rabbitmq_delayed_messa
 ## @param communityPlugins List of Community plugins (URLs) to be downloaded during container initialization
 ## Combine it with extraPlugins to also enable them.
 ##
-communityPlugins: ""
+communityPlugins: "https://gh.api.99988866.xyz/https://github.com/rabbitmq/rabbitmq-delayed-message-exchange/releases/download/v3.12.0/rabbitmq_delayed_message_exchange-3.12.0.ez"
 ## @param extraPlugins Extra plugins to enable (single string containing a space-separated list)
 ## Use this instead of `plugins` to add new plugins
 ##
@@ -759,8 +759,8 @@ resources:
     cpu: 3000m
     memory: 4Gi
   requests:
-    cpu: 1000m
-    memory: 4Gi
+    cpu: 100m
+    memory: 128Mi
 
 ## Configure RabbitMQ containers' extra options for liveness probe
 ## ref: https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-probes/#configure-probes
