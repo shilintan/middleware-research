@@ -17,6 +17,7 @@ spec:
       port: 5672
       protocol: TCP
       targetPort: amqp
+      nodePort: 31601
     - name: epmd
       port: 4369
       protocol: TCP
@@ -29,6 +30,7 @@ spec:
       port: 15672
       protocol: TCP
       targetPort: stats
+      nodePort: 31309
   selector:
     app.kubernetes.io/instance: rabbitmq
     app.kubernetes.io/name: rabbitmq

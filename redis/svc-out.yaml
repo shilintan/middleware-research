@@ -18,6 +18,7 @@ spec:
       port: 6379
       protocol: TCP
       targetPort: 6379
+      nodePort: 32647
     - name: tcp-sentinel
       port: 26379
       protocol: TCP

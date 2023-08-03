@@ -18,6 +18,7 @@ spec:
       port: 27017
       protocol: TCP
       targetPort: mongodb
+      nodePort: 31839
   selector:
     app.kubernetes.io/component: mongodb
     app.kubernetes.io/instance: mongodb
