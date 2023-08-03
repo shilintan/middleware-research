@@ -326,8 +326,8 @@ primary:
     ##    memory: 256Mi
     ##
     limits:
-      cpu: 3000m
-      memory: 12Gi
+      cpu: 8000m
+      memory: 24Gi
     requests:
       cpu: 100m
       memory: 128Mi
@@ -345,7 +345,7 @@ primary:
     initialDelaySeconds: 5
     periodSeconds: 10
     timeoutSeconds: 1
-    failureThreshold: 3
+    failureThreshold: 30
     successThreshold: 1
   ## Configure extra options for readiness probe
   ## ref: https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-probes/#configure-probes
@@ -377,7 +377,7 @@ primary:
     initialDelaySeconds: 15
     periodSeconds: 10
     timeoutSeconds: 1
-    failureThreshold: 10
+    failureThreshold: 100
     successThreshold: 1
   ## @param primary.customLivenessProbe Override default liveness probe for MySQL primary containers
   ##
@@ -724,7 +724,7 @@ secondary:
     initialDelaySeconds: 5
     periodSeconds: 10
     timeoutSeconds: 1
-    failureThreshold: 3
+    failureThreshold: 30
     successThreshold: 1
   ## Configure extra options for readiness probe
   ## ref: https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-probes/#configure-probes
@@ -1157,7 +1157,7 @@ metrics:
     periodSeconds: 10
     timeoutSeconds: 1
     successThreshold: 1
-    failureThreshold: 3
+    failureThreshold: 30
   ## Mysqld Prometheus exporter readiness probe
   ## ref: https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle/#container-probes
   ## @param metrics.readinessProbe.enabled Enable readinessProbe
