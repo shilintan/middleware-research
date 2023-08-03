@@ -135,7 +135,7 @@ auth:
   ## @param auth.password RabbitMQ application password
   ## ref: https://github.com/bitnami/containers/tree/main/bitnami/rabbitmq#environment-variables
   ##
-  password: "wendi666_"
+  password: "obnU4yZFfYvCxAnMVdF8"
   ## @param auth.securePassword Whether to set the RabbitMQ password securely. This is incompatible with loading external RabbitMQ definitions and 'true' when not setting the auth.password parameter.
   ## ref: https://github.com/bitnami/containers/tree/main/bitnami/rabbitmq#environment-variables
   ##
@@ -931,7 +931,7 @@ persistence:
   ## @param persistence.size PVC Storage Request for RabbitMQ data volume
   ## If you change this value, you might have to adjust `rabbitmq.diskFreeLimit` as well
   ##
-  size: 8Gi
+  size: 80Gi
   ## @param persistence.annotations Persistence annotations. Evaluated as a template
   ## Example:
   ## annotations:
