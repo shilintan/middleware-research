@@ -1,0 +1,30 @@
+apiVersion: v1
+kind: Service
+metadata:
+  annotations:
+    meta.helm.sh/release-name: minio
+    meta.helm.sh/release-namespace: test
+  labels:
+    app.kubernetes.io/instance: minio
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: minio
+    helm.sh/chart: minio-12.6.11
+  name: minio-out
+  namespace: test
+spec:
+  ports:
+    - name: minio-api
+      port: 9000
+      protocol: TCP
+      targetPort: minio-api
+      nodePort: 31880
+    - name: minio-console
+      port: 9001
+      protocol: TCP
+      targetPort: minio-console
+      nodePort: 31680
+  selector:
+    app.kubernetes.io/instance: minio
+    app.kubernetes.io/name: minio
+  sessionAffinity: None
+  type: LoadBalancer
