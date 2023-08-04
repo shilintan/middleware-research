@@ -86,7 +86,13 @@ hostAliases: []
 ## @param config Custom configuration options for NGINX
 ## ref: https://kubernetes.github.io/ingress-nginx/user-guide/nginx-configuration/configmap/
 ##
-config: {}
+config:
+  enable-underscores-in-headers: "true"
+  use-gzip: "true"
+  gzip-min-length: "512"
+  log-format-upstream: '{"time": "$time_iso8601", "remote_addr": "$proxy_protocol_addr", "x-forward-for": "$proxy_add_x_forwarded_for", "request_id": "$req_id", "remote_user": "$remote_user", "bytes_sent": $bytes_sent, "request_time": $request_time, "status":$status, "vhost": "$host", "request_proto": "$server_protocol", "path": "$uri", "request_query": "$args", "request_length": $request_length, "duration": $request_time,"method": "$request_method", "http_referrer": "$http_referer", "http_user_agent": "$http_user_agent"}'
+#  access-log-path: "access.log"
+#  error-log-path: "error.log"
 ## @param proxySetHeaders Custom headers before sending traffic to backends
 ## ref: https://github.com/kubernetes/ingress-nginx/tree/master/docs/examples/customization/custom-headers
 ##
@@ -120,7 +126,7 @@ watchIngressWithoutClass: false
 ingressClassResource:
   name: nginx
   enabled: true
-  default: false
+  default: true
   controllerClass: "k8s.io/ingress-nginx"
   parameters: {}
 ## Allows customization of the external service
@@ -271,8 +277,8 @@ minReadySeconds: 0
 ##
 resources:
   limits:
-    cpu: 250m
-    memory: 256Mi
+    cpu: 2500m
+    memory: 2560Mi
   requests:
     cpu: 250m
     memory: 256Mi
