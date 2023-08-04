@@ -6,7 +6,7 @@ metadata:
   labels:
     app.kubernetes.io/name: nginx-ingress-controller
     helm.sh/chart: nginx-ingress-controller-9.7.7
-    app.kubernetes.io/instance: release-name
+    app.kubernetes.io/instance: nginx
     app.kubernetes.io/managed-by: Helm
     app.kubernetes.io/component: controller
   name: nginx

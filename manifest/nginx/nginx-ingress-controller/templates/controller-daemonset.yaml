@@ -3,19 +3,19 @@
 apiVersion: apps/v1
 kind: DaemonSet
 metadata:
-  name: release-name-nginx-ingress-controller
+  name: nginx-nginx-ingress-controller
   namespace: "nginx"
   labels:
     app.kubernetes.io/name: nginx-ingress-controller
     helm.sh/chart: nginx-ingress-controller-9.7.7
-    app.kubernetes.io/instance: release-name
+    app.kubernetes.io/instance: nginx
     app.kubernetes.io/managed-by: Helm
     app.kubernetes.io/component: controller
 spec:
   selector:
     matchLabels:
       app.kubernetes.io/name: nginx-ingress-controller
-      app.kubernetes.io/instance: release-name
+      app.kubernetes.io/instance: nginx
       app.kubernetes.io/component: controller
   revisionHistoryLimit: 10
   minReadySeconds: 0
@@ -24,7 +24,7 @@ spec:
       labels:
         app.kubernetes.io/name: nginx-ingress-controller
         helm.sh/chart: nginx-ingress-controller-9.7.7
-        app.kubernetes.io/instance: release-name
+        app.kubernetes.io/instance: nginx
         app.kubernetes.io/managed-by: Helm
         app.kubernetes.io/component: controller
     spec:
@@ -39,7 +39,7 @@ spec:
                 labelSelector:
                   matchLabels:
                     app.kubernetes.io/name: nginx-ingress-controller
-                    app.kubernetes.io/instance: release-name
+                    app.kubernetes.io/instance: nginx
                     app.kubernetes.io/component: controller
                 topologyKey: kubernetes.io/hostname
               weight: 1
@@ -47,8 +47,8 @@ spec:
           
       securityContext:
         fsGroup: 1001
-      hostNetwork: false
-      serviceAccountName: release-name-nginx-ingress-controller
+      hostNetwork: true
+      serviceAccountName: nginx-nginx-ingress-controller
       terminationGracePeriodSeconds: 60
       containers:
         - name: controller
@@ -68,7 +68,7 @@ spec:
             - --default-backend-service=
             - --election-id=ingress-controller-leader
             - --controller-class=k8s.io/ingress-nginx
-            - --configmap=nginx/release-name-nginx-ingress-controller
+            - --configmap=nginx/nginx-nginx-ingress-controller
           env:
             - name: POD_NAME
               valueFrom:
