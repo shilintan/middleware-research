@@ -1,44 +1,31 @@
-#---
-#apiVersion: v1
-#kind: PersistentVolumeClaim
-#metadata:
-#  name: gitlab
-#  namespace: env
-#spec:
-#  storageClassName: openebs-lvmpv
-#  accessModes:
-#    - ReadWriteOnce
-#  resources:
-#    requests:
-#      storage: 50Gi
 ---
-## 外部网络
-#apiVersion: networking.k8s.io/v1
-#kind: Ingress
-#metadata:
-#  name: gitlab
-#  namespace: env
-#  annotations:
-#    nginx.ingress.kubernetes.io/proxy-body-size: "0"
-#    nginx.ingress.kubernetes.io/proxy-read-timeout: "600"
-#    nginx.ingress.kubernetes.io/proxy-send-timeout: "600"
-#    nginx.ingress.kubernetes.io/ssl-redirect: "false"
-#    nginx.ingress.kubernetes.io/proxy-buffering: "on"
-#    nginx.ingress.kubernetes.io/client-body-buffer-size: 100m
-#    nginx.ingress.kubernetes.io/proxy-buffer-size: "800k"
-#    nginx.ingress.kubernetes.io/proxy-buffers-number: "400"
-#spec:
-#  rules:
-#    - host: gitlab-registry.local.
-#      http:
-#        paths:
-#          - pathType: Prefix
-#            path: "/"
-#            backend:
-#              service:
-#                name: gitlab
-#                port:
-#                  number: 80
+# 外部网络
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: gitlab
+  namespace: env
+  annotations:
+    nginx.ingress.kubernetes.io/proxy-body-size: "0"
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "600"
+    nginx.ingress.kubernetes.io/proxy-send-timeout: "600"
+    nginx.ingress.kubernetes.io/ssl-redirect: "false"
+    nginx.ingress.kubernetes.io/proxy-buffering: "on"
+    nginx.ingress.kubernetes.io/client-body-buffer-size: 100m
+    nginx.ingress.kubernetes.io/proxy-buffer-size: "800k"
+    nginx.ingress.kubernetes.io/proxy-buffers-number: "400"
+spec:
+  rules:
+    - host: gitlab.local.
+      http:
+        paths:
+          - pathType: Prefix
+            path: "/"
+            backend:
+              service:
+                name: gitlab
+                port:
+                  number: 80
 ---
 # 内部网络
 apiVersion: v1
@@ -88,20 +75,20 @@ spec:
             - containerPort: 80
             - containerPort: 443
             - containerPort: 22
-#          livenessProbe:
-#            httpGet:
-#              path: /users/sign_in
-#              port: 80
-#            initialDelaySeconds: 60
-#            timeoutSeconds: 15
-#            failureThreshold: 60
-#            periodSeconds: 10
-#          readinessProbe:
-#            httpGet:
-#              path: /users/sign_in
-#              port: 80
-#            initialDelaySeconds: 15
-#            timeoutSeconds: 1
+          livenessProbe:
+            httpGet:
+              path: /users/sign_in
+              port: 80
+            initialDelaySeconds: 60
+            timeoutSeconds: 15
+            failureThreshold: 60
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /users/sign_in
+              port: 80
+            initialDelaySeconds: 15
+            timeoutSeconds: 1
           env:
             - name: TZ
               value: Asia/Shanghai
