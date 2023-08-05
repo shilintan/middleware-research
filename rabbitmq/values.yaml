@@ -34,7 +34,8 @@ global:
 image:
   registry: docker.io
   repository: bitnami/rabbitmq
-  tag: 3.12.2-debian-11-r8
+  tag: 3.11.18-debian-11-r0
+#  tag: 3.12.2-debian-11-r8
   digest: ""
   ## set to true if you would like to see extra information on logs
   ## It turns BASH and/or NAMI debugging in the image
@@ -231,15 +232,16 @@ memoryHighWatermark:
 
 ## @param plugins List of default plugins to enable (should only be altered to remove defaults; for additional plugins use `extraPlugins`)
 ##
-plugins: "rabbitmq_management rabbitmq_peer_discovery_k8s,rabbitmq_delayed_message_exchange"
+plugins: "rabbitmq_management rabbitmq_peer_discovery_k8s rabbitmq_delayed_message_exchange"
 ## @param communityPlugins List of Community plugins (URLs) to be downloaded during container initialization
 ## Combine it with extraPlugins to also enable them.
 ##
-communityPlugins: "https://gh.api.99988866.xyz/https://github.com/rabbitmq/rabbitmq-delayed-message-exchange/releases/download/v3.12.0/rabbitmq_delayed_message_exchange-3.12.0.ez"
+#communityPlugins: "https://gh.api.99988866.xyz/https://github.com/rabbitmq/rabbitmq-delayed-message-exchange/releases/download/v3.12.0/rabbitmq_delayed_message_exchange-3.12.0.ez"
+communityPlugins: "https://gh.api.99988866.xyz/https://github.com/rabbitmq/rabbitmq-delayed-message-exchange/releases/download/3.11.1/rabbitmq_delayed_message_exchange-3.11.1.ez"
 ## @param extraPlugins Extra plugins to enable (single string containing a space-separated list)
 ## Use this instead of `plugins` to add new plugins
 ##
-extraPlugins: "rabbitmq_auth_backend_ldap"
+extraPlugins: "rabbitmq_auth_backend_ldap "
 
 ## Clustering settings
 ##
