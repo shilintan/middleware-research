@@ -4,7 +4,7 @@ apiVersion: apps/v1
 kind: StatefulSet
 metadata:
   name: release-name-rabbitmq
-  namespace: "test"
+  namespace: "default"
   labels:
     app.kubernetes.io/name: rabbitmq
     helm.sh/chart: rabbitmq-12.0.9
@@ -28,8 +28,8 @@ spec:
         app.kubernetes.io/instance: release-name
         app.kubernetes.io/managed-by: Helm
       annotations:
-        checksum/config: 99ec519db15c3085d3c186da111a35bc0b79de8f00a0c25f73b0a7743c7a6c8b
-        checksum/secret: ca38cae95519be2e897268a03899d78184cfce954d3e14883675db9a9d52d556
+        checksum/config: 8c8c75fd6c782f90f1a5a078c3888532f7eee2b350e05ff57bd000bc39fc5bef
+        checksum/secret: 50916ca2cc0f3b81c7b217245d3390242638c81b7e84c593688e86c4d642945c
     spec:
       
       serviceAccountName: release-name-rabbitmq
@@ -125,6 +125,10 @@ spec:
                   key: rabbitmq-password
             - name: RABBITMQ_PLUGINS
               value: "rabbitmq_management, rabbitmq_peer_discovery_k8s,rabbitmq_delayed_message_exchange, rabbitmq_auth_backend_ldap"
+            - name: RABBITMQ_COMMUNITY_PLUGINS
+              value: "https://gh.api.99988866.xyz/https://github.com/rabbitmq/rabbitmq-delayed-message-exchange/releases/download/v3.12.0/rabbitmq_delayed_message_exchange-3.12.0.ez"
+            - name: TZ
+              value: Asia/Shanghai
           envFrom:
           ports:
             - name: amqp
@@ -162,8 +166,8 @@ spec:
               cpu: 3000m
               memory: 4Gi
             requests:
-              cpu: 1000m
-              memory: 4Gi
+              cpu: 100m
+              memory: 128Mi
           volumeMounts:
             - name: configuration
               mountPath: /bitnami/rabbitmq/conf
@@ -188,5 +192,5 @@ spec:
             - "ReadWriteOnce"
         resources:
           requests:
-            storage: "8Gi"
+            storage: "80Gi"
         storageClassName: openebs-lvmpv

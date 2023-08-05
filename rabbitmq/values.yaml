@@ -298,7 +298,9 @@ terminationGracePeriodSeconds: 120
 ##   - name: FOO
 ##     value: BAR
 ##
-extraEnvVars: []
+extraEnvVars:
+  - name: TZ
+    value: Asia/Shanghai
 ## @param extraEnvVarsCM Name of existing ConfigMap containing extra environment variables
 ##
 extraEnvVarsCM: ""

@@ -204,7 +204,9 @@ extraArgs: {}
 ##         key: FOO
 ##         name: secret-resource
 ##
-extraEnvVars: []
+extraEnvVars:
+  - name: TZ
+    value: Asia/Shanghai
 ## @param extraEnvVarsCM Name of a existing ConfigMap containing extra environment variables
 ##
 extraEnvVarsCM: ""
@@ -688,7 +690,9 @@ defaultBackend:
   ##   - name: FOO
   ##     value: "bar"
   ##
-  extraEnvVars: []
+  extraEnvVars:
+    - name: TZ
+      value: Asia/Shanghai
   ## @param defaultBackend.extraEnvVarsCM Name of existing ConfigMap containing extra env vars for %%MAIN_CONTAINER_NAME%% nodes
   ##
   extraEnvVarsCM: ""
