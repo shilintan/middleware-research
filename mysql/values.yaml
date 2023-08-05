@@ -559,7 +559,9 @@ secondary:
   command: []
   ## @param secondary.args Override default container args on MySQL Secondary container(s) (useful when using custom images)
   ##
-  args: []
+  args:
+    - --character-set-server=utf8mb4
+    - --collation-server=utf8mb4_unicode_ci
   ## @param secondary.lifecycleHooks for the MySQL Secondary container(s) to automate configuration before or after startup
   ##
   lifecycleHooks: {}
