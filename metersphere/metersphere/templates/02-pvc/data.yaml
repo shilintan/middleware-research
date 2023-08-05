@@ -1,0 +1,27 @@
+{{ if .Values.dataPersistence.enabled }}
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: metersphere-data-pvc
+spec:
+  accessModes:
+    - {{.Values.dataPersistence.accessModes}}
+  resources:
+    requests:
+      storage: {{.Values.dataPersistence.size}}
+  storageClassName: {{.Values.common.storageClass}}
+{{if .Values.nodeController.enabled }}  
+---
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: node-controller-data-pvc
+spec:
+  accessModes:
+    - {{.Values.dataPersistence.accessModes}}
+  resources:
+    requests:
+      storage: {{.Values.dataPersistence.size}}
+  storageClassName: {{.Values.common.storageClass}}
+{{end}}
+{{end}}
