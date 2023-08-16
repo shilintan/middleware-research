@@ -206,6 +206,7 @@ primary:
     collation-server=utf8_general_ci
     slow_query_log=0
     long_query_time=10.0
+    max_connect_errors = 18446744073709551615
 
     [client]
     port=3306
@@ -587,7 +588,8 @@ secondary:
     collation-server=utf8_general_ci
     slow_query_log=0
     long_query_time=10.0
-
+    max_connect_errors = 18446744073709551615
+    
     [client]
     port=3306
     socket=/opt/bitnami/mysql/tmp/mysql.sock
