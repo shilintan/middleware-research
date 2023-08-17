@@ -4,7 +4,7 @@ apiVersion: apps/v1
 kind: DaemonSet
 metadata:
   name: release-name-nginx-ingress-controller
-  namespace: "test"
+  namespace: "default"
   labels:
     app.kubernetes.io/name: nginx-ingress-controller
     helm.sh/chart: nginx-ingress-controller-9.7.7
@@ -68,7 +68,7 @@ spec:
             - --default-backend-service=
             - --election-id=ingress-controller-leader
             - --controller-class=k8s.io/ingress-nginx
-            - --configmap=test/release-name-nginx-ingress-controller
+            - --configmap=default/release-name-nginx-ingress-controller
           env:
             - name: POD_NAME
               valueFrom:
@@ -78,6 +78,8 @@ spec:
               valueFrom:
                 fieldRef:
                   fieldPath: metadata.namespace
+            - name: TZ
+              value: Asia/Shanghai
           envFrom:
           livenessProbe:
             failureThreshold: 3
@@ -110,8 +112,8 @@ spec:
               hostPort: 443
           resources:
             limits:
-              cpu: 250m
-              memory: 256Mi
+              cpu: 2500m
+              memory: 2560Mi
             requests:
               cpu: 250m
               memory: 256Mi

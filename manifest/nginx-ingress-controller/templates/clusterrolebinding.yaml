@@ -16,4 +16,4 @@ roleRef:
 subjects:
   - kind: ServiceAccount
     name: release-name-nginx-ingress-controller
-    namespace: "test"
+    namespace: "default"
