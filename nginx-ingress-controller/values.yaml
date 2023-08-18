@@ -246,7 +246,7 @@ revisionHistoryLimit: 10
 ## @param podSecurityContext.fsGroup Group ID for the container filesystem
 ##
 podSecurityContext:
-  enabled: true
+  enabled: false
   fsGroup: 1001
 ## Controller containers' Security Context (only main container)
 ## ref: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/#set-the-security-context-for-a-container
@@ -258,7 +258,7 @@ podSecurityContext:
 ## @param containerSecurityContext.runAsNonRoot Set container's Security Context runAsNonRoot
 ##
 containerSecurityContext:
-  enabled: true
+  enabled: false
   allowPrivilegeEscalation: true
   runAsUser: 1001
   capabilities:
@@ -279,8 +279,8 @@ minReadySeconds: 0
 ##
 resources:
   limits:
-    cpu: 2500m
-    memory: 2560Mi
+    cpu: 5000m
+    memory: 5120Mi
   requests:
     cpu: 250m
     memory: 256Mi
@@ -364,7 +364,7 @@ schedulerName: ""
 ## Required on CNI based K8s installations, since CNI and hostport don't mix yet
 ## Can be deprecated once https://github.com/kubernetes/kubernetes/issues/23920 is merged
 ##
-hostNetwork: false
+hostNetwork: true
 ## @param dnsPolicy By default, while using host network, name resolution uses the host's DNS
 ## Optionally, change this to ClusterFirstWithHostNet in case you have 'hostNetwork: true' if you wish nginx-controller
 ## to keep resolving names inside the Kubernetes network
@@ -534,7 +534,7 @@ defaultBackend:
   ## @param defaultBackend.podSecurityContext.fsGroup Group ID for the container filesystem
   ##
   podSecurityContext:
-    enabled: true
+    enabled: false
     fsGroup: 1001
   ## Default backend containers' Security Context (only main container)
   ## ref: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/#set-the-security-context-for-a-container
@@ -543,7 +543,7 @@ defaultBackend:
   ## @param defaultBackend.containerSecurityContext.runAsNonRoot Set container's Security Context runAsNonRoot
   ##
   containerSecurityContext:
-    enabled: true
+    enabled: false
     runAsUser: 1001
     runAsNonRoot: true
   ## Default backend containers' resource requests and limits
