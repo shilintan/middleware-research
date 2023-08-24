@@ -134,6 +134,55 @@ spec:
             - name: config
               mountPath: /opt/bitnami/mysql/conf/my.cnf
               subPath: my.cnf
+        - name: metrics
+          image: docker.io/bitnami/mysqld-exporter:0.15.0-debian-11-r0
+          imagePullPolicy: "IfNotPresent"
+          securityContext:
+            runAsNonRoot: true
+            runAsUser: 1001
+          env:
+            - name: MYSQL_ROOT_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: release-name-mysql
+                  key: mysql-root-password
+          command:
+            - /bin/bash
+            - -ec
+            - |
+              password_aux="${MYSQL_ROOT_PASSWORD:-}"
+              if [[ -f "${MYSQL_ROOT_PASSWORD_FILE:-}" ]]; then
+                  password_aux=$(cat "$MYSQL_ROOT_PASSWORD_FILE")
+              fi
+              DATA_SOURCE_NAME="root:${password_aux}@(localhost:3306)/" /bin/mysqld_exporter
+          ports:
+            - name: metrics
+              containerPort: 9104
+          livenessProbe:
+            failureThreshold: 30
+            initialDelaySeconds: 120
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 1
+            httpGet:
+              path: /metrics
+              port: metrics
+          readinessProbe:
+            failureThreshold: 3
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 1
+            httpGet:
+              path: /metrics
+              port: metrics
+          resources:
+            limits:
+              cpu: 100m
+              memory: 256Mi
+            requests:
+              cpu: 100m
+              memory: 256Mi
       volumes:
         - name: config
           configMap:
