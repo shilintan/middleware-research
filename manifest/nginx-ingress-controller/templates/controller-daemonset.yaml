@@ -45,7 +45,7 @@ spec:
               weight: 1
         nodeAffinity:
           
-      hostNetwork: false
+      hostNetwork: true
       serviceAccountName: release-name-nginx-ingress-controller
       terminationGracePeriodSeconds: 60
       containers:
@@ -107,4 +107,46 @@ spec:
               cpu: 250m
               memory: 256Mi
           volumeMounts:
+            - mountPath: /log
+              name: logs-dir
+        - args:
+          - -config.file=/etc/promtail/config.yaml
+          - -config.expand-env=true
+          env:
+          - name: TZ
+            value: Asia/Shanghai
+          - name: ENVIRONMENT_NAME
+            valueFrom:
+              fieldRef:
+                fieldPath: metadata.namespace
+          - name: REPLICASET_NAME
+            valueFrom:
+              fieldRef:
+                fieldPath: metadata.labels['app.kubernetes.io/name']
+          - name: POD_NAME
+            valueFrom:
+              fieldRef:
+                fieldPath: metadata.name
+          image: grafana/promtail:2.8.3-amd64
+          imagePullPolicy: IfNotPresent
+          name: promtail
+          resources:
+            limits:
+              cpu: 500m
+              ephemeral-storage: 10Gi
+              memory: 0.5Gi
+            requests:
+              cpu: 50m
+              ephemeral-storage: 1Gi
+              memory: 0.05Gi
+          volumeMounts:
+          - mountPath: /mnt
+            name: logs-dir
+          - mountPath: /etc/promtail
+            name: promtail-config
       volumes:
+        - emptyDir: {}
+          name: logs-dir
+        - configMap:
+            name: loki-promtail-gateway-nginx
+          name: promtail-config

@@ -91,8 +91,8 @@ config:
   use-gzip: "true"
   gzip-min-length: "512"
   log-format-upstream: '{"time": "$time_iso8601", "remote_addr": "$proxy_protocol_addr", "x-forward-for": "$proxy_add_x_forwarded_for", "request_id": "$req_id", "remote_user": "$remote_user", "bytes_sent": $bytes_sent, "request_time": $request_time, "status":$status, "vhost": "$host", "request_proto": "$server_protocol", "path": "$uri", "request_query": "$args", "request_length": $request_length, "duration": $request_time,"method": "$request_method", "http_referrer": "$http_referer", "http_user_agent": "$http_user_agent"}'
-#  access-log-path: "access.log"
-#  error-log-path: "error.log"
+  access-log-path: "/log/access.log"
+  error-log-path: "/log/error.log"
 ## @param proxySetHeaders Custom headers before sending traffic to backends
 ## ref: https://github.com/kubernetes/ingress-nginx/tree/master/docs/examples/customization/custom-headers
 ##
@@ -420,10 +420,17 @@ nodeSelector: {}
 tolerations: []
 ## @param extraVolumes Optionally specify extra list of additional volumes for Controller pods
 ##
-extraVolumes: []
+extraVolumes:
+  - name: logs-dir
+    emptyDir: {}
+  - name: promtail-config
+    configMap:
+      name: loki-promtail-gateway-nginx
 ## @param extraVolumeMounts Optionally specify extra list of additional volumeMounts for Controller container(s)
 ##
-extraVolumeMounts: []
+extraVolumeMounts:
+  - name: logs-dir
+    mountPath: /log
 ## @param initContainers Add init containers to the controller pods
 ## Example:
 ## initContainers:
@@ -445,7 +452,42 @@ initContainers: []
 ##       - name: portname
 ##         containerPort: 1234
 ##
-sidecars: []
+sidecars:
+  - name: promtail
+    image: grafana/promtail:2.8.3-amd64
+    imagePullPolicy: IfNotPresent
+    args:
+      - -config.file=/etc/promtail/config.yaml
+      - -config.expand-env=true
+    env:
+      - name: TZ
+        value: Asia/Shanghai
+      - name: ENVIRONMENT_NAME
+        valueFrom:
+          fieldRef:
+            fieldPath: metadata.namespace
+      - name: REPLICASET_NAME
+        valueFrom:
+          fieldRef:
+            fieldPath: metadata.labels['app.kubernetes.io/name']
+      - name: POD_NAME
+        valueFrom:
+          fieldRef:
+            fieldPath: metadata.name
+    volumeMounts:
+      - mountPath: /mnt
+        name: logs-dir
+      - mountPath: /etc/promtail
+        name: promtail-config
+    resources:
+      requests:
+        cpu: 50m
+        memory: 0.05Gi
+        ephemeral-storage: 1Gi
+      limits:
+        cpu: 500m
+        memory: 0.5Gi
+        ephemeral-storage: 10Gi
 ## @param customTemplate [object] Override NGINX template
 ##
 customTemplate:
