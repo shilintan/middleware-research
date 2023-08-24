@@ -1038,7 +1038,7 @@ volumePermissions:
 metrics:
   ## @param metrics.enabled Start a side-car prometheus exporter
   ##
-  enabled: false
+  enabled: true
   ## @param metrics.image.registry Exporter image registry
   ## @param metrics.image.repository Exporter image repository
   ## @param metrics.image.tag Exporter image tag (immutable tags are recommended)
@@ -1137,18 +1137,12 @@ metrics:
   ## @param metrics.resources.requests The requested resources for MySQL prometheus exporter containers
   ##
   resources:
-    ## Example:
-    ## limits:
-    ##    cpu: 100m
-    ##    memory: 256Mi
-    ##
-    limits: {}
-    ## Examples:
-    ## requests:
-    ##    cpu: 100m
-    ##    memory: 256Mi
-    ##
-    requests: {}
+   limits:
+      cpu: 100m
+      memory: 256Mi
+   requests:
+      cpu: 100m
+      memory: 256Mi
   ## Mysqld Prometheus exporter liveness probe
   ## ref: https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle/#container-probes
   ## @param metrics.livenessProbe.enabled Enable livenessProbe
@@ -1187,7 +1181,7 @@ metrics:
   serviceMonitor:
     ## @param metrics.serviceMonitor.enabled Create ServiceMonitor Resource for scraping metrics using PrometheusOperator
     ##
-    enabled: false
+    enabled: true
     ## @param metrics.serviceMonitor.namespace Specify the namespace in which the serviceMonitor resource will be created
     ##
     namespace: ""

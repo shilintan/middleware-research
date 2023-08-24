@@ -4,7 +4,7 @@ apiVersion: apps/v1
 kind: StatefulSet
 metadata:
   name: release-name-mysql
-  namespace: "test"
+  namespace: "default"
   labels:
     app.kubernetes.io/name: mysql
     helm.sh/chart: mysql-9.10.9
@@ -25,7 +25,7 @@ spec:
   template:
     metadata:
       annotations:
-        checksum/configuration: 5a43c0a2f07dbc2d4110e3d19d6fea90112e10a1b23aeda854c129ce9236207b
+        checksum/configuration: e5b8b41ad28b9e55a93e6057f78f851abca073929413827bfc47d71f35ea76b0
       labels:
         app.kubernetes.io/name: mysql
         helm.sh/chart: mysql-9.10.9
@@ -67,12 +67,14 @@ spec:
                 secretKeyRef:
                   name: release-name-mysql
                   key: mysql-root-password
+            - name: TZ
+              value: Asia/Shanghai
           envFrom:
           ports:
             - name: mysql
               containerPort: 3306
           livenessProbe:
-            failureThreshold: 3
+            failureThreshold: 30
             initialDelaySeconds: 5
             periodSeconds: 10
             successThreshold: 1
@@ -104,7 +106,7 @@ spec:
                   fi
                   mysqladmin status -uroot -p"${password_aux}"
           startupProbe:
-            failureThreshold: 10
+            failureThreshold: 100
             initialDelaySeconds: 15
             periodSeconds: 10
             successThreshold: 1
@@ -121,11 +123,11 @@ spec:
                   mysqladmin status -uroot -p"${password_aux}"
           resources: 
             limits:
-              cpu: 3000m
-              memory: 12Gi
+              cpu: 8000m
+              memory: 24Gi
             requests:
-              cpu: 1000m
-              memory: 4Gi
+              cpu: 100m
+              memory: 128Mi
           volumeMounts:
             - name: data
               mountPath: /bitnami/mysql
@@ -149,5 +151,5 @@ spec:
           - "ReadWriteOnce"
         resources:
           requests:
-            storage: "30Gi"
+            storage: "100Gi"
         storageClassName: openebs-lvmpv

@@ -1,0 +1,26 @@
+---
+# Source: mysql/templates/servicemonitor.yaml
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: release-name-mysql
+  namespace: default
+  labels:
+    app.kubernetes.io/name: mysql
+    helm.sh/chart: mysql-9.10.9
+    app.kubernetes.io/instance: release-name
+    app.kubernetes.io/managed-by: Helm
+  annotations:
+spec:
+  jobLabel: ""
+  endpoints:
+    - port: metrics
+      interval: 30s
+  namespaceSelector:
+    matchNames:
+      - "default"
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: mysql
+      app.kubernetes.io/instance: release-name
+      app.kubernetes.io/component: metrics
