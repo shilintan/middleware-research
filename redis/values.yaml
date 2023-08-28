@@ -1486,7 +1486,7 @@ tls:
 metrics:
   ## @param metrics.enabled Start a sidecar prometheus exporter to expose Redis&reg; metrics
   ##
-  enabled: false
+  enabled: true
   ## Bitnami Redis&reg; Exporter image
   ## ref: https://hub.docker.com/r/bitnami/redis-exporter/tags/
   ## @param metrics.image.registry Redis&reg; Exporter image registry
@@ -1618,8 +1618,12 @@ metrics:
   ## @param metrics.resources.requests The requested resources for the Redis&reg; exporter container
   ##
   resources:
-    limits: {}
-    requests: {}
+    limits:
+      cpu: 100m
+      memory: 128Mi
+    requests:
+      cpu: 100m
+      memory: 128Mi
   ## @param metrics.podLabels Extra labels for Redis&reg; exporter pods
   ## ref: https://kubernetes.io/docs/concepts/overview/working-with-objects/labels/
   ##
@@ -1670,7 +1674,7 @@ metrics:
   serviceMonitor:
     ## @param metrics.serviceMonitor.enabled Create ServiceMonitor resource(s) for scraping metrics using PrometheusOperator
     ##
-    enabled: false
+    enabled: true
     ## @param metrics.serviceMonitor.namespace The namespace in which the ServiceMonitor will be created
     ##
     namespace: ""

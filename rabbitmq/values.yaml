@@ -1218,7 +1218,7 @@ networkPolicy:
 metrics:
   ## @param metrics.enabled Enable exposing RabbitMQ metrics to be gathered by Prometheus
   ##
-  enabled: false
+  enabled: true
   ## @param metrics.plugins Plugins to enable Prometheus metrics in RabbitMQ
   ##
   plugins: "rabbitmq_prometheus"
@@ -1235,7 +1235,7 @@ metrics:
   serviceMonitor:
     ## @param metrics.serviceMonitor.enabled Create ServiceMonitor Resource for scraping metrics using PrometheusOperator
     ##
-    enabled: false
+    enabled: true
     ## @param metrics.serviceMonitor.namespace Specify the namespace in which the serviceMonitor resource will be created
     ##
     namespace: ""

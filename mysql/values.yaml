@@ -1138,7 +1138,7 @@ metrics:
   ##
   resources:
    limits:
-      cpu: 100m
+      cpu: 1000m
       memory: 256Mi
    requests:
       cpu: 100m
