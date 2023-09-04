@@ -1,0 +1,24 @@
+---
+# Source: mongodb/templates/arbiter/headless-svc.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: release-name-mongodb-arbiter-headless
+  namespace: "default"
+  labels:
+    app.kubernetes.io/instance: release-name
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: mongodb
+    helm.sh/chart: mongodb-13.17.0
+    app.kubernetes.io/component: arbiter
+spec:
+  type: ClusterIP
+  clusterIP: None
+  ports:
+    - name: tcp-mongodb
+      port: 27017
+      targetPort: mongodb
+  selector:
+    app.kubernetes.io/instance: release-name
+    app.kubernetes.io/name: mongodb
+    app.kubernetes.io/component: arbiter

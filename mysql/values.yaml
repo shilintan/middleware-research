@@ -178,9 +178,6 @@ primary:
   args: []
 #    - --character-set-server=utf8mb4
 #    - --collation-server=utf8mb4_unicode_ci
-#    - --general-log
-#    - --general-log-file=/bitnami/mysql/data/mysql.general.log
-#    - --log-error=/bitnami/mysql/data/mysql.error.log
   ## @param primary.lifecycleHooks for the MySQL Primary container(s) to automate configuration before or after startup
   ##
   lifecycleHooks: {}
@@ -206,6 +203,9 @@ primary:
     max_allowed_packet=16M
     bind-address=*
     pid-file=/opt/bitnami/mysql/tmp/mysqld.pid
+    log-error=/opt/bitnami/mysql/logs/mysqld.log
+    general-log=1
+    general-log-file=/opt/bitnami/mysql/logs/mysql.general.log
     character-set-server=UTF8
     collation-server=utf8_general_ci
     slow_query_log=0
@@ -288,7 +288,7 @@ primary:
   ## @param primary.terminationGracePeriodSeconds In seconds, time the given to the MySQL primary pod needs to terminate gracefully
   ## ref: https://kubernetes.io/docs/concepts/workloads/pods/pod/#termination-of-pods
   ##
-  terminationGracePeriodSeconds: "10"
+  terminationGracePeriodSeconds: "60"
   ## @param primary.topologySpreadConstraints Topology Spread Constraints for pod assignment
   ## https://kubernetes.io/docs/concepts/workloads/pods/pod-topology-spread-constraints/
   ## The value is evaluated as a template
@@ -304,7 +304,7 @@ primary:
   ## @param primary.podSecurityContext.fsGroup Group ID for the mounted volumes' filesystem
   ##
   podSecurityContext:
-    enabled: false
+    enabled: true
     fsGroup: 1001
   ## MySQL primary container security context
   ## ref: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/#set-the-security-context-for-a-container
@@ -313,7 +313,7 @@ primary:
   ## @param primary.containerSecurityContext.runAsNonRoot Set MySQL primary container's Security Context runAsNonRoot
   ##
   containerSecurityContext:
-    enabled: false
+    enabled: true
     runAsUser: 1001
     runAsNonRoot: true
   ## MySQL primary container's resource requests and limits
@@ -1040,7 +1040,7 @@ volumePermissions:
 metrics:
   ## @param metrics.enabled Start a side-car prometheus exporter
   ##
-  enabled: false
+  enabled: true
   ## @param metrics.image.registry Exporter image registry
   ## @param metrics.image.repository Exporter image repository
   ## @param metrics.image.tag Exporter image tag (immutable tags are recommended)

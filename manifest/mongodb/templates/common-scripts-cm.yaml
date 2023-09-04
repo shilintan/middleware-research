@@ -6,10 +6,10 @@ metadata:
   name: release-name-mongodb-common-scripts
   namespace: "default"
   labels:
-    app.kubernetes.io/name: mongodb
-    helm.sh/chart: mongodb-13.16.1
     app.kubernetes.io/instance: release-name
     app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: mongodb
+    helm.sh/chart: mongodb-13.17.0
     app.kubernetes.io/component: mongodb
 data:
   startup-probe.sh: |

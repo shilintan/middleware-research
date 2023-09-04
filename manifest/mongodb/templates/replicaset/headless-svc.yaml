@@ -1,25 +1,25 @@
 ---
-# Source: mongodb/templates/standalone/svc.yaml
+# Source: mongodb/templates/replicaset/headless-svc.yaml
 apiVersion: v1
 kind: Service
 metadata:
-  name: release-name-mongodb
+  name: release-name-mongodb-headless
   namespace: "default"
   labels:
-    app.kubernetes.io/name: mongodb
-    helm.sh/chart: mongodb-13.16.1
     app.kubernetes.io/instance: release-name
     app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: mongodb
+    helm.sh/chart: mongodb-13.17.0
     app.kubernetes.io/component: mongodb
 spec:
   type: ClusterIP
-  sessionAffinity: None
+  clusterIP: None
+  publishNotReadyAddresses: true
   ports:
     - name: "mongodb"
       port: 27017
       targetPort: mongodb
-      nodePort: null
   selector:
-    app.kubernetes.io/name: mongodb
     app.kubernetes.io/instance: release-name
+    app.kubernetes.io/name: mongodb
     app.kubernetes.io/component: mongodb

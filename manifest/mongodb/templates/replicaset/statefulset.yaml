@@ -1,0 +1,238 @@
+---
+# Source: mongodb/templates/replicaset/statefulset.yaml
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: release-name-mongodb
+  namespace: "default"
+  labels:
+    app.kubernetes.io/instance: release-name
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: mongodb
+    helm.sh/chart: mongodb-13.17.0
+    app.kubernetes.io/component: mongodb
+spec:
+  serviceName: release-name-mongodb-headless
+  podManagementPolicy: OrderedReady
+  replicas: 2
+  updateStrategy:
+    type: RollingUpdate
+  selector:
+    matchLabels:
+      app.kubernetes.io/instance: release-name
+      app.kubernetes.io/name: mongodb
+      app.kubernetes.io/component: mongodb
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/instance: release-name
+        app.kubernetes.io/managed-by: Helm
+        app.kubernetes.io/name: mongodb
+        helm.sh/chart: mongodb-13.17.0
+        app.kubernetes.io/component: mongodb
+    spec:
+      
+      serviceAccountName: release-name-mongodb
+      affinity:
+        podAffinity:
+          
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - podAffinityTerm:
+                labelSelector:
+                  matchLabels:
+                    app.kubernetes.io/instance: release-name
+                    app.kubernetes.io/name: mongodb
+                    app.kubernetes.io/component: mongodb
+                topologyKey: kubernetes.io/hostname
+              weight: 1
+        nodeAffinity:
+          
+      securityContext:
+        fsGroup: 1001
+        sysctls: []
+      
+      containers:
+        - name: mongodb
+          image: docker.io/bitnami/mongodb:5.0.19-debian-11-r19
+          imagePullPolicy: "IfNotPresent"
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+              - ALL
+            runAsGroup: 0
+            runAsNonRoot: true
+            runAsUser: 1001
+            seccompProfile:
+              type: RuntimeDefault
+          command:
+            - /scripts/setup.sh
+          env:
+            - name: BITNAMI_DEBUG
+              value: "false"
+            - name: MY_POD_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+            - name: MY_POD_NAMESPACE
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.namespace
+            - name: MY_POD_HOST_IP
+              valueFrom:
+                fieldRef:
+                  fieldPath: status.hostIP
+            - name: K8S_SERVICE_NAME
+              value: "release-name-mongodb-headless"
+            - name: MONGODB_INITIAL_PRIMARY_HOST
+              value: release-name-mongodb-0.$(K8S_SERVICE_NAME).$(MY_POD_NAMESPACE).svc.cluster.local
+            - name: MONGODB_REPLICA_SET_NAME
+              value: "rs0"
+            - name: MONGODB_ADVERTISED_HOSTNAME
+              value: "$(MY_POD_NAME).$(K8S_SERVICE_NAME).$(MY_POD_NAMESPACE).svc.cluster.local"
+            - name: MONGODB_ROOT_USER
+              value: "root"
+            - name: MONGODB_ROOT_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: release-name-mongodb
+                  key: mongodb-root-password
+            - name: MONGODB_REPLICA_SET_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: release-name-mongodb
+                  key: mongodb-replica-set-key
+            - name: ALLOW_EMPTY_PASSWORD
+              value: "no"
+            - name: MONGODB_SYSTEM_LOG_VERBOSITY
+              value: "0"
+            - name: MONGODB_DISABLE_SYSTEM_LOG
+              value: "no"
+            - name: MONGODB_DISABLE_JAVASCRIPT
+              value: "no"
+            - name: MONGODB_ENABLE_JOURNAL
+              value: "yes"
+            - name: MONGODB_PORT_NUMBER
+              value: "27017"
+            - name: MONGODB_ENABLE_IPV6
+              value: "no"
+            - name: MONGODB_ENABLE_DIRECTORY_PER_DB
+              value: "no"
+            - name: TZ
+              value: Asia/Shanghai
+          ports:
+            - name: mongodb
+              containerPort: 27017
+          livenessProbe:
+            failureThreshold: 6
+            initialDelaySeconds: 30
+            periodSeconds: 20
+            successThreshold: 1
+            timeoutSeconds: 10
+            exec:
+              command:
+                - /bitnami/scripts/ping-mongodb.sh
+          readinessProbe:
+            failureThreshold: 6
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 5
+            exec:
+              command:
+                - /bitnami/scripts/readiness-probe.sh
+          resources:
+            limits:
+              cpu: 3000m
+              memory: 12Gi
+            requests:
+              cpu: 100m
+              memory: 128Mi
+          volumeMounts:
+            - name: datadir
+              mountPath: /bitnami/mongodb
+              subPath: 
+            - name: common-scripts
+              mountPath: /bitnami/scripts
+            - name: scripts
+              mountPath: /scripts/setup.sh
+              subPath: setup.sh
+            
+        - name: metrics
+          image: docker.io/bitnami/mongodb-exporter:0.39.0-debian-11-r53
+          imagePullPolicy: "IfNotPresent"
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+              - ALL
+            runAsGroup: 0
+            runAsNonRoot: true
+            runAsUser: 1001
+            seccompProfile:
+              type: RuntimeDefault
+          command:
+            - /bin/bash
+            - -ec
+          args:
+            - |
+              /bin/mongodb_exporter  --collector.diagnosticdata --collector.replicasetstatus --compatible-mode --mongodb.direct-connect --mongodb.global-conn-pool --web.listen-address ":9216" --mongodb.uri "mongodb://$MONGODB_ROOT_USER:$(echo $MONGODB_ROOT_PASSWORD | sed -r "s/@/%40/g;s/:/%3A/g")@localhost:27017/admin?" 
+          env:
+            - name: MONGODB_ROOT_USER
+              value: "root"
+            - name: MONGODB_ROOT_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: release-name-mongodb
+                  key: mongodb-root-password
+          volumeMounts:
+          ports:
+            - name: metrics
+              containerPort: 9216
+          livenessProbe:
+            failureThreshold: 3
+            initialDelaySeconds: 15
+            periodSeconds: 5
+            successThreshold: 1
+            timeoutSeconds: 10
+            httpGet:
+              path: /
+              port: metrics
+          readinessProbe:
+            failureThreshold: 3
+            initialDelaySeconds: 5
+            periodSeconds: 5
+            successThreshold: 1
+            timeoutSeconds: 10
+            httpGet:
+              path: /
+              port: metrics
+          resources:
+            limits:
+              cpu: 1000m
+              memory: 128Mi
+            requests:
+              cpu: 100m
+              memory: 128Mi
+      volumes:
+        - name: common-scripts
+          configMap:
+            name: release-name-mongodb-common-scripts
+            defaultMode: 0550
+        - name: scripts
+          configMap:
+            name: release-name-mongodb-scripts
+            defaultMode: 0755
+  volumeClaimTemplates:
+    - apiVersion: v1
+      kind: PersistentVolumeClaim
+      metadata:
+        name: datadir
+      spec:
+        accessModes:
+          - "ReadWriteOnce"
+        resources:
+          requests:
+            storage: "80Gi"
+        storageClassName: openebs-lvmpv
