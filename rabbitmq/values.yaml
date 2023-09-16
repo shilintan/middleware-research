@@ -380,6 +380,7 @@ tcpListenOptions:
   keepalive: false
 
 configuration: |-
+  channel_max = 0
   ## Username and password
   ##
   default_user = {{ .Values.auth.username }}
