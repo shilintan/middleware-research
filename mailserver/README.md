@@ -1,0 +1,1 @@
+https://github.com/docker-mailserver/docker-mailserver-helm/blob/master/charts/docker-mailserver/values.yaml

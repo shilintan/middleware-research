@@ -18,7 +18,7 @@ global:
   ##   - myRegistryKeySecretName
   ##
   imagePullSecrets: []
-  storageClass: "openebs-lvmpv"
+  storageClass: "openebs-lvmssdpv"
 
 ## @section Common parameters
 ##
