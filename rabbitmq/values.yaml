@@ -18,7 +18,7 @@ global:
   ##   - myRegistryKeySecretName
   ##
   imagePullSecrets: []
-  storageClass: "openebs-lvmpv"
+  storageClass: "openebs-lvmssdpv"
 
 ## @section RabbitMQ Image parameters
 ## Bitnami RabbitMQ image version
@@ -635,7 +635,7 @@ extraSecretsPrependReleaseName: false
 
 ## @param replicaCount Number of RabbitMQ replicas to deploy
 ##
-replicaCount: 1
+replicaCount: 3
 ## @param schedulerName Use an alternate scheduler, e.g. "stork".
 ## ref: https://kubernetes.io/docs/tasks/administer-cluster/configure-multiple-schedulers/
 ##
@@ -937,7 +937,7 @@ persistence:
   ## @param persistence.size PVC Storage Request for RabbitMQ data volume
   ## If you change this value, you might have to adjust `rabbitmq.diskFreeLimit` as well
   ##
-  size: 80Gi
+  size: 10Gi
   ## @param persistence.annotations Persistence annotations. Evaluated as a template
   ## Example:
   ## annotations:

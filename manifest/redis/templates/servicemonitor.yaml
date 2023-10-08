@@ -1,0 +1,26 @@
+---
+# Source: redis/templates/servicemonitor.yaml
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: release-name-redis
+  namespace: "default"
+  labels:
+    app.kubernetes.io/name: redis
+    helm.sh/chart: redis-17.14.3
+    app.kubernetes.io/instance: release-name
+    app.kubernetes.io/managed-by: Helm
+spec:
+  endpoints:
+    - port: http-metrics
+      interval: 30s
+  
+  
+  namespaceSelector:
+    matchNames:
+      - default
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: redis
+      app.kubernetes.io/instance: release-name
+      app.kubernetes.io/component: metrics

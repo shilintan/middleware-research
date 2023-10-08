@@ -4,7 +4,7 @@ apiVersion: apps/v1
 kind: StatefulSet
 metadata:
   name: release-name-redis-node
-  namespace: "test"
+  namespace: "default"
   labels:
     app.kubernetes.io/name: redis
     helm.sh/chart: redis-17.14.3
@@ -12,7 +12,7 @@ metadata:
     app.kubernetes.io/managed-by: Helm
     app.kubernetes.io/component: node
 spec:
-  replicas: 1
+  replicas: 3
   selector:
     matchLabels:
       app.kubernetes.io/name: redis
@@ -30,10 +30,12 @@ spec:
         app.kubernetes.io/managed-by: Helm
         app.kubernetes.io/component: node
       annotations:
-        checksum/configmap: 9c3af8b5c352526ad10665521bad64dbfd56fa98509bbc3e2ca759bcef5c403a
-        checksum/health: dbea9fde915b5b0031a97c903262e62806462dc93e8bd3f04ff2d462fd210959
-        checksum/scripts: be13192b00d22013707d68fc41f80f3679c30764d52b1ef675e2753255be04b2
-        checksum/secret: 122724da52cab8a526b96d93d7b98f2c2b9586a7d5ef5b0f2f61d975828a55a3
+        checksum/configmap: 9f72da864e8d30594423857ef74464c650db3aa092ec1c0426fdedec74500178
+        checksum/health: 3a71559f2682c1345ef8b0e02542df91d0fb7715092b98306677b8bc9cf1504a
+        checksum/scripts: f69f4f125655707c1220afbf12d5174c52909b3312601ae3e6e4c3790d385c34
+        checksum/secret: 3405050a3c5ba80b7428e8fd3b77eceeb523db9202ae03fbfc3264e6e8279040
+        prometheus.io/port: "9121"
+        prometheus.io/scrape: "true"
     spec:
       
       securityContext:
@@ -55,6 +57,8 @@ spec:
               weight: 1
         nodeAffinity:
           
+      nodeSelector:
+        shilintan.io/service-type-middleware: v
       terminationGracePeriodSeconds: 30
       containers:
         - name: redis
@@ -109,6 +113,8 @@ spec:
               value: "26379"
             - name: REDIS_DATA_DIR
               value: /data
+            - name: TZ
+              value: Asia/Shanghai
           ports:
             - name: redis
               containerPort: 6379
@@ -150,8 +156,8 @@ spec:
               cpu: 3000m
               memory: 4Gi
             requests:
-              cpu: 1000m
-              memory: 4Gi
+              cpu: 10m
+              memory: 1Gi
           volumeMounts:
             - name: start-scripts
               mountPath: /opt/bitnami/scripts/start-scripts
@@ -202,6 +208,8 @@ spec:
               value: "no"
             - name: REDIS_SENTINEL_PORT
               value: "26379"
+            - name: TZ
+              value: Asia/Shanghai
           ports:
             - name: redis-sentinel
               containerPort: 26379
@@ -243,7 +251,7 @@ spec:
               cpu: 1000m
               memory: 1Gi
             requests:
-              cpu: 100m
+              cpu: 10m
               memory: 100Mi
           volumeMounts:
             - name: start-scripts
@@ -256,6 +264,67 @@ spec:
               mountPath: /data
             - name: config
               mountPath: /opt/bitnami/redis-sentinel/mounted-etc
+        - name: metrics
+          image: docker.io/bitnami/redis-exporter:1.52.0-debian-11-r0
+          imagePullPolicy: "IfNotPresent"
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+              - ALL
+            runAsGroup: 0
+            runAsNonRoot: true
+            runAsUser: 1001
+            seccompProfile:
+              type: RuntimeDefault
+          command:
+            - /bin/bash
+            - -c
+            - |
+              if [[ -f '/secrets/redis-password' ]]; then
+                  export REDIS_PASSWORD=$(cat /secrets/redis-password)
+              fi
+              redis_exporter
+          env:
+            - name: REDIS_ALIAS
+              value: release-name-redis
+            - name: REDIS_USER
+              value: default
+            - name: REDIS_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: release-name-redis
+                  key: redis-password
+            - name: TZ
+              value: Asia/Shanghai
+          ports:
+            - name: metrics
+              containerPort: 9121
+          livenessProbe:
+            failureThreshold: 5
+            initialDelaySeconds: 10
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 5
+            tcpSocket:
+              port: metrics
+          readinessProbe:
+            failureThreshold: 3
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 1
+            httpGet:
+              path: /
+              port: metrics
+          resources:
+            limits:
+              cpu: 100m
+              memory: 128Mi
+            requests:
+              cpu: 10m
+              memory: 128Mi
+          volumeMounts:
       volumes:
         - name: start-scripts
           configMap:
@@ -286,5 +355,5 @@ spec:
           - "ReadWriteOnce"
         resources:
           requests:
-            storage: "8Gi"
+            storage: "10Gi"
         storageClassName: openebs-lvmpv

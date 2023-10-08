@@ -161,7 +161,7 @@ existingConfigmap: ""
 master:
   ## @param master.count Number of Redis&reg; master instances to deploy (experimental, requires additional configuration)
   ##
-  count: 1
+  count: 3
   ## @param master.configuration Configuration for Redis&reg; master nodes
   ## ref: https://redis.io/topics/config
   ##
@@ -271,7 +271,7 @@ master:
       cpu: 3000m
       memory: 4Gi
     requests:
-      cpu: 100m
+      cpu: 10m
       memory: 1Gi
   ## Configure Pods Security Context
   ## ref: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/#set-the-security-context-for-a-pod
@@ -374,7 +374,8 @@ master:
   ## @param master.nodeSelector Node labels for Redis&reg; master pods assignment
   ## ref: https://kubernetes.io/docs/user-guide/node-selection/
   ##
-  nodeSelector: {}
+  nodeSelector:
+    "shilintan.io/service-type-middleware": "v"
   ## @param master.tolerations Tolerations for Redis&reg; master pods assignment
   ## ref: https://kubernetes.io/docs/concepts/configuration/taint-and-toleration/
   ##
@@ -581,7 +582,7 @@ master:
 replica:
   ## @param replica.replicaCount Number of Redis&reg; replicas to deploy
   ##
-  replicaCount: 1
+  replicaCount: 3
   ## @param replica.configuration Configuration for Redis&reg; replicas nodes
   ## ref: https://redis.io/topics/config
   ##
@@ -703,7 +704,7 @@ replica:
       cpu: 3000m
       memory: 4Gi
     requests:
-      cpu: 100m
+      cpu: 10m
       memory: 1Gi
   ## Configure Pods Security Context
   ## ref: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/#set-the-security-context-for-a-pod
@@ -806,7 +807,8 @@ replica:
   ## @param replica.nodeSelector Node labels for Redis&reg; replicas pods assignment
   ## ref: https://kubernetes.io/docs/user-guide/node-selection/
   ##
-  nodeSelector: {}
+  nodeSelector:
+    "shilintan.io/service-type-middleware": "v"
   ## @param replica.tolerations Tolerations for Redis&reg; replicas pods assignment
   ## ref: https://kubernetes.io/docs/concepts/configuration/taint-and-toleration/
   ##
@@ -902,7 +904,7 @@ replica:
       - ReadWriteOnce
     ## @param replica.persistence.size Persistent Volume size
     ##
-    size: 80Gi
+    size: 10Gi
     ## @param replica.persistence.annotations Additional custom annotations for the PVC
     ##
     annotations: {}
@@ -1231,7 +1233,7 @@ sentinel:
       cpu: 1000m
       memory: 1Gi
     requests:
-      cpu: 100m
+      cpu: 10m
       memory: 100Mi
   ## Configure Container Security Context
   ## ref: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/#set-the-security-context-for-a-pod
@@ -1622,7 +1624,7 @@ metrics:
       cpu: 100m
       memory: 128Mi
     requests:
-      cpu: 100m
+      cpu: 10m
       memory: 128Mi
   ## @param metrics.podLabels Extra labels for Redis&reg; exporter pods
   ## ref: https://kubernetes.io/docs/concepts/overview/working-with-objects/labels/
