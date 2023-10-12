@@ -1,6 +1,6 @@
 ingress:
   enabled: true
-  host: metersphere-test.local.chainlettre05.com
+  host: metersphere-test.local.your-domain-name.com
   annotations:
     {}
     ## example for ingress annotions.

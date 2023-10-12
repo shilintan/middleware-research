@@ -16,7 +16,7 @@ metadata:
     nginx.ingress.kubernetes.io/proxy-buffers-number: "400"
 spec:
   rules:
-    - host: gitlab.local.
+    - host: gitlab-env.local.your-domain-name.com
       http:
         paths:
           - pathType: Prefix
@@ -69,7 +69,10 @@ spec:
       restartPolicy: Always
       containers:
         - name: gitlab
-          image: gitlab/gitlab-ce:15.11.13-ce.0
+#          image: gitlab/gitlab-ce:16.3.4-ce.0
+#          image: gitlab/gitlab-ce:16.4.0-ce.0
+#          image: gitlab/gitlab-ce:16.2.7-ce.0
+          image: gitlab/gitlab-ce:16.2.3-ce.0
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 80
@@ -92,8 +95,8 @@ spec:
           env:
             - name: TZ
               value: Asia/Shanghai
-#            - name: GITLAB_OMNIBUS_CONFIG
-#              value: "external_url 'http://192.168.2.34:32529'"
+            - name: GITLAB_OMNIBUS_CONFIG
+              value: "external_url 'http://gitlab-env.local.your-domain-name.com'"
           volumeMounts:
             - mountPath: /etc/gitlab
               name: gitlab
