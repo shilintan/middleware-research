@@ -1,0 +1,35 @@
+---
+apiVersion: v1
+kind: Endpoints
+metadata:
+  name: service-im
+  namespace: prod-local
+subsets:
+  - addresses:
+      - ip: 192.168.0.80
+      - ip: 192.168.0.75
+      - ip: 192.168.0.48
+      - ip: 192.168.0.181
+      - ip: 192.168.0.6
+    ports:
+      - port: 18080
+        name: admin
+      - port: 80
+        name: app
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: service-im
+  namespace: prod-local
+spec:
+  ports:
+    - protocol: TCP
+      port: 18080
+      targetPort: 18080
+      name: admin
+    - protocol: TCP
+      port: 80
+      targetPort: 80
+      name: app
+  type: NodePort

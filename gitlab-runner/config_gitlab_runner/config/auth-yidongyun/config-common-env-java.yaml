@@ -1,0 +1,11 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: common-env-java
+  namespace: prod
+data:
+  SPRING_PROFILES: "--spring.profiles.active=prod --server.port=80"
+  ".env": |
+    # mq
+    mq__addresses=10.1.2.3:1234

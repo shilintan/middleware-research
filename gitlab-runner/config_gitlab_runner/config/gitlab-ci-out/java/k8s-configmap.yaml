@@ -1,0 +1,16 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: template_sever_name-config
+  namespace: template_namespace_name
+data:
+  application-prod.properties: |
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: template_sever_name-rc
+  namespace: template_namespace_name
+data:
+  JAVA_OPTS: "-Xms2g -Xmx4g"

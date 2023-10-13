@@ -1,0 +1,13 @@
+stages:
+  - build-code
+
+
+build code:
+  stage: build-code
+  image: maven:3.9-eclipse-temurin-8-alpine
+  variables:
+    GIT_STRATEGY: clone
+  script:
+    - export ci_type=java-pom
+    - /bin/cp -rf /build/cache/config/gitlab-ci-out/"${ci_type}"/build-code.sh ci.sh
+    - sh ci.sh

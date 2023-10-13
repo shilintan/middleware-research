@@ -1,0 +1,22 @@
+stages:
+  - build-image
+  - deploy-image
+
+
+build image:
+  stage: build-image
+  image: quay.io/buildah/stable:v1.31
+  variables:
+    GIT_STRATEGY: clone
+  script:
+    - export ci_type=php
+    - /bin/cp -rf /build/cache/config/gitlab-ci-out/"${ci_type}"/build-image.sh ci.sh
+    - sh ci.sh
+
+deploy image:
+  stage: deploy-image
+  image: bitnami/kubectl:1.25
+  script:
+    - export ci_type=php
+    - /bin/cp -rf /build/cache/config/gitlab-ci-out/"${ci_type}"/deploy-image.sh ci.sh
+    - sh ci.sh

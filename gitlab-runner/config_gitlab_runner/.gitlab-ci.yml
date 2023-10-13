@@ -1,0 +1,12 @@
+stages:
+  - sync-file
+
+
+build code:
+  stage: sync-file
+  image: maven:3.9-eclipse-temurin-8-alpine
+  variables:
+    GIT_STRATEGY: clone
+  script:
+    - rm -rf  /build/cache/config
+    - /bin/cp -rf config/  /build/cache/

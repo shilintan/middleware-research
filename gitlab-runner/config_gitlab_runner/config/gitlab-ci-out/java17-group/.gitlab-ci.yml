@@ -1,0 +1,33 @@
+stages:
+  - build-code
+  - build-image
+  - deploy-image
+
+
+build code:
+  stage: build-code
+  image: maven:3.9-eclipse-temurin-17
+  variables:
+    GIT_STRATEGY: clone
+  script:
+    - export ci_type=java17-group
+    - /bin/cp -rf /build/cache/config/gitlab-ci-out/"${ci_type}"/build-code.sh ci.sh
+    - bash ci.sh
+
+build image:
+  stage: build-image
+  image: quay.io/buildah/stable:v1.31
+  variables:
+    GIT_STRATEGY: clone
+  script:
+    - export ci_type=java17-group
+    - /bin/cp -rf /build/cache/config/gitlab-ci-out/"${ci_type}"/build-image.sh ci.sh
+    - bash ci.sh
+
+deploy image:
+  stage: deploy-image
+  image: bitnami/kubectl:1.25
+  script:
+    - export ci_type=java17-group
+    - /bin/cp -rf /build/cache/config/gitlab-ci-out/"${ci_type}"/deploy-image.sh ci.sh
+    - bash ci.sh

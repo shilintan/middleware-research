@@ -1,0 +1,9 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: common-file-java
+  namespace: prod
+data:
+  "test": |
+    test

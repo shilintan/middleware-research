@@ -1,0 +1,23 @@
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: feiyu-admin-web-backend
+  namespace: test
+  annotations:
+    nginx.ingress.kubernetes.io/proxy-body-size: "0"
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "600"
+    nginx.ingress.kubernetes.io/proxy-send-timeout: "600"
+    nginx.ingress.kubernetes.io/rewrite-target: /$1
+spec:
+  rules:
+    - host: feiyu-admin-web.test.local.your-domain-name.com
+      http:
+        paths:
+          - pathType: Prefix
+            path: "/api/(.*)"
+            backend:
+              service:
+                name: admin-api
+                port:
+                  number: 80
