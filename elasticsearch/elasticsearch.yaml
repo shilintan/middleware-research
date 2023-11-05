@@ -1,0 +1,240 @@
+---
+# 外部网络
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: elasticsearch
+  namespace: test
+  annotations:
+    nginx.ingress.kubernetes.io/proxy-body-size: "0"
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "600"
+    nginx.ingress.kubernetes.io/proxy-send-timeout: "600"
+    nginx.ingress.kubernetes.io/ssl-redirect: "false"
+    nginx.ingress.kubernetes.io/proxy-buffering: "on"
+    nginx.ingress.kubernetes.io/client-body-buffer-size: 100m
+    nginx.ingress.kubernetes.io/proxy-buffer-size: "800k"
+    nginx.ingress.kubernetes.io/proxy-buffers-number: "400"
+spec:
+  rules:
+    - host: elasticsearch.test.local.your-domain-name.com
+      http:
+        paths:
+          - pathType: Prefix
+            path: "/"
+            backend:
+              service:
+                name: elasticsearch
+                port:
+                  number: 9200
+---
+# 内部域名
+apiVersion: v1
+kind: Service
+metadata:
+  name: elasticsearch
+  namespace: test
+spec:
+  selector:
+    app: elasticsearch
+  ports:
+    - protocol: TCP
+      port: 9200
+      targetPort: 9200
+---
+# 内部域名
+apiVersion: v1
+kind: Service
+metadata:
+  name: elasticsearch-hs
+  namespace: test
+spec:
+  selector:
+    app: elasticsearch
+  ports:
+    - protocol: TCP
+      port: 9200
+      targetPort: 9200
+      name: http
+    - protocol: TCP
+      port: 9300
+      targetPort: 9300
+      name: transport
+---
+# 服务
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: elasticsearch
+  namespace: test
+  labels:
+    app: elasticsearch
+spec:
+  serviceName: elasticsearch
+  replicas: 3
+  selector:
+    matchLabels:
+      app: elasticsearch
+  template:
+    metadata:
+      labels:
+        app: elasticsearch
+    spec:
+      initContainers:
+        - name: init-file-permission
+          image: "busybox:1.36"
+          imagePullPolicy: IfNotPresent
+          securityContext:
+            runAsUser: 0
+          command:
+            - sh
+            - -c
+            - "chown -R 1000:0 /usr/share/elasticsearch/data /usr/share/elasticsearch/plugins"
+          resources:
+            requests:
+              cpu: 10m
+              memory: 1Gi
+              ephemeral-storage: 1Gi
+            limits:
+              cpu: 1000m
+              memory: 1Gi
+              ephemeral-storage: 1Gi
+          volumeMounts:
+            - mountPath: /usr/share/elasticsearch/data
+              name: elasticsearch
+              subPath: data
+            - mountPath: /usr/share/elasticsearch/plugins
+              name: elasticsearch
+              subPath: plugins
+      containers:
+      - name: elasticsearch
+        image: elasticsearch:7.17.7
+        ports:
+        - containerPort: 9200
+          name: http
+        - containerPort: 9300
+          name: transport
+#        livenessProbe:
+#          tcpSocket:
+#            port: 9200
+#          failureThreshold: 10
+#          periodSeconds: 60
+#          initialDelaySeconds: 10
+        env:
+          - name: TZ
+            value: Asia/Shanghai
+          - name: node.name
+            valueFrom:
+              fieldRef:
+                fieldPath: metadata.name
+          - name: cluster.initial_master_nodes
+            value: "elasticsearch-0,elasticsearch-1,elasticsearch-2,"
+          - name: discovery.seed_hosts
+            value: "elasticsearch-hs"
+          - name: cluster.name
+            value: "elasticsearch"
+          - name: network.host
+            value: "0.0.0.0"
+          - name: node.data
+            value: "true"
+          - name: node.ingest
+            value: "true"
+          - name: node.master
+            value: "true"
+          - name: node.ml
+            value: "false"
+          - name: node.remote_cluster_client
+            value: "true"
+          - name: ES_JAVA_OPTS
+            value: -Xms1g -Xmx1g
+          - name: restart
+            value: "2"
+        volumeMounts:
+          - mountPath: /usr/share/elasticsearch/data
+            name: elasticsearch
+            subPath: data
+          - mountPath: /usr/share/elasticsearch/plugins
+            name: elasticsearch
+            subPath: plugins
+#        readinessProbe:
+#          exec:
+#            command:
+#              - sh
+#              - -c
+#              - |
+#                #!/usr/bin/env bash -e
+#                # If the node is starting up wait for the cluster to be ready (request params: "wait_for_status=green&timeout=1s" )
+#                # Once it has started only check that the node itself is responding
+#                START_FILE=/tmp/.es_start_file
+#
+#                # Disable nss cache to avoid filling dentry cache when calling curl
+#                # This is required with Elasticsearch Docker using nss < 3.52
+#                export NSS_SDB_USE_CACHE=no
+#
+#                http () {
+#                  local path="${1}"
+#                  local args="${2}"
+#                  set -- -XGET -s
+#
+#                  if [ "$args" != "" ]; then
+#                    set -- "$@" $args
+#                  fi
+#
+#                  if [ -n "${ELASTIC_USERNAME}" ] && [ -n "${ELASTIC_PASSWORD}" ]; then
+#                    set -- "$@" -u "${ELASTIC_USERNAME}:${ELASTIC_PASSWORD}"
+#                  fi
+#
+#                  curl --output /dev/null -k "$@" "http://127.0.0.1:9200${path}"
+#                }
+#
+#                if [ -f "${START_FILE}" ]; then
+#                  echo 'Elasticsearch is already running, lets check the node is healthy'
+#                  HTTP_CODE=$(http "/" "-w %{http_code}")
+#                  RC=$?
+#                  if [[ ${RC} -ne 0 ]]; then
+#                    echo "curl --output /dev/null -k -XGET -s -w '%{http_code}' \${BASIC_AUTH} http://127.0.0.1:9200/ failed with RC ${RC}"
+#                    exit ${RC}
+#                  fi
+#                  # ready if HTTP code 200, 503 is tolerable if ES version is 6.x
+#                  if [[ ${HTTP_CODE} == "200" ]]; then
+#                    exit 0
+#                  elif [[ ${HTTP_CODE} == "503" && "7" == "6" ]]; then
+#                    exit 0
+#                  else
+#                    echo "curl --output /dev/null -k -XGET -s -w '%{http_code}' \${BASIC_AUTH} http://127.0.0.1:9200/ failed with HTTP code ${HTTP_CODE}"
+#                    exit 1
+#                  fi
+#
+#                else
+#                  echo 'Waiting for elasticsearch cluster to become ready (request params: "wait_for_status=green&timeout=1s" )'
+#                  if http "/_cluster/health?wait_for_status=green&timeout=1s" "--fail" ; then
+#                    touch ${START_FILE}
+#                    exit 0
+#                  else
+#                    echo 'Cluster is not yet ready (request params: "wait_for_status=green&timeout=1s" )'
+#                    exit 1
+#                  fi
+#                fi
+#          failureThreshold: 36
+#          initialDelaySeconds: 10
+#          periodSeconds: 10
+#          successThreshold: 3
+#          timeoutSeconds: 5
+        resources:
+          requests:
+            cpu: 10m
+            memory: 1Gi
+            ephemeral-storage: 1Gi
+          limits:
+            cpu: 5000m
+            memory: 5Gi
+            ephemeral-storage: 10Gi
+  volumeClaimTemplates:
+    - metadata:
+        name: elasticsearch
+      spec:
+        storageClassName: openebs-lvmssdpv
+        accessModes:
+          - ReadWriteOnce
+        resources:
+          requests:
+            storage: 10Gi

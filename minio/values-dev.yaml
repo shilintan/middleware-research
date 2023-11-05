@@ -47,9 +47,9 @@ extraDeploy: []
 
 ## Bitnami MinIO&reg; image version
 ## ref: https://hub.docker.com/r/bitnami/minio/tags/
-## @param image.registry MinIO&reg; image registry
-## @param image.repository MinIO&reg; image repository
-## @param image.tag MinIO&reg; image tag (immutable tags are recommended)
+## @param image.registry [default: REGISTRY_NAME] MinIO&reg; image registry
+## @param image.repository [default: REPOSITORY_NAME/minio] MinIO&reg; image repository
+## @skip image.tag MinIO&reg; image tag (immutable tags are recommended)
 ## @param image.digest MinIO&reg; image digest in the way sha256:aa.... Please note this parameter, if set, will override the tag
 ## @param image.pullPolicy Image pull policy
 ## @param image.pullSecrets Specify docker-registry secret names as an array
@@ -58,7 +58,7 @@ extraDeploy: []
 image:
   registry: docker.io
   repository: bitnami/minio
-  tag: 2023.7.18-debian-11-r0
+  tag: 2023.10.25-debian-11-r1
   digest: ""
   ## Specify a imagePullPolicy
   ## Defaults to 'Always' if image tag is 'latest', else set to 'IfNotPresent'
@@ -78,9 +78,9 @@ image:
   debug: false
 ## Bitnami MinIO&reg; Client image version
 ## ref: https://hub.docker.com/r/bitnami/minio-client/tags/
-## @param clientImage.registry MinIO&reg; Client image registry
-## @param clientImage.repository MinIO&reg; Client image repository
-## @param clientImage.tag MinIO&reg; Client image tag (immutable tags are recommended)
+## @param clientImage.registry [default: REGISTRY_NAME] MinIO&reg; Client image registry
+## @param clientImage.repository [default: REPOSITORY_NAME/minio-client] MinIO&reg; Client image repository
+## @skip clientImage.tag MinIO&reg; Client image tag (immutable tags are recommended)
 ## @param clientImage.digest MinIO&reg; Client image digest in the way sha256:aa.... Please note this parameter, if set, will override the tag
 ##
 clientImage:
@@ -91,7 +91,7 @@ clientImage:
 ## @param mode MinIO&reg; server mode (`standalone` or `distributed`)
 ## ref: https://docs.minio.io/docs/distributed-minio-quickstart-guide
 ##
-mode: standalone
+mode: distributed
 ## MinIO&reg; authentication parameters
 ##
 auth:
@@ -205,7 +205,7 @@ statefulset:
   podManagementPolicy: Parallel
   ## @param statefulset.replicaCount Number of pods per zone (only for MinIO&reg; distributed mode). Should be even and `>= 4`
   ##
-  replicaCount: 4
+  replicaCount: 3
   ## @param statefulset.zones Number of zones (only for MinIO&reg; distributed mode)
   ##
   zones: 1
@@ -223,6 +223,10 @@ provisioning:
   ## ref: https://kubernetes.io/docs/tasks/administer-cluster/configure-multiple-schedulers/
   ##
   schedulerName: ""
+  ## @param provisioning.podLabels Extra labels for provisioning pods
+  ## Ref: https://kubernetes.io/docs/concepts/overview/working-with-objects/labels/
+  ##
+  podLabels: {}
   ## @param provisioning.podAnnotations Provisioning Pod annotations.
   ##
   podAnnotations: {}
@@ -397,7 +401,14 @@ provisioning:
     enabled: true
     runAsUser: 1001
     runAsNonRoot: true
-
+  ## Automatic Cleanup for Finished Jobs
+  ## @param provisioning.cleanupAfterFinished.enabled Enables Cleanup for Finished Jobs
+  ## @param provisioning.cleanupAfterFinished.seconds Sets the value of ttlSecondsAfterFinished
+  ## ref: https://kubernetes.io/docs/concepts/workloads/controllers/ttlafterfinished/
+  ##
+  cleanupAfterFinished:
+    enabled: false
+    seconds: 600
 ## @param hostAliases MinIO&reg; pod host aliases
 ## https://kubernetes.io/docs/concepts/services-networking/add-entries-to-pod-etc-hosts-with-host-aliases/
 ##
@@ -512,7 +523,7 @@ livenessProbe:
   periodSeconds: 5
   timeoutSeconds: 5
   successThreshold: 1
-  failureThreshold: 50
+  failureThreshold: 5
 ## Configure extra options for readiness probe
 ## ref: https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-probes/#configure-probes
 ## @param readinessProbe.enabled Enable readinessProbe
@@ -648,7 +659,7 @@ service:
 ingress:
   ## @param ingress.enabled Enable ingress controller resource for MinIO Console
   ##
-  enabled: false
+  enabled: true
   ## @param ingress.apiVersion Force Ingress API version (automatically detected if not set)
   ##
   apiVersion: ""
@@ -757,7 +768,7 @@ ingress:
 apiIngress:
   ## @param apiIngress.enabled Enable ingress controller resource for MinIO API
   ##
-  enabled: false
+  enabled: true
   ## @param apiIngress.apiVersion Force Ingress API version (automatically detected if not set)
   ##
   apiVersion: ""
@@ -896,7 +907,7 @@ persistence:
   storageClass: ""
   ## @param persistence.mountPath Data volume mount path
   ##
-  mountPath: /data
+  mountPath: /bitnami/minio/data
   ## @param persistence.accessModes PVC Access Modes for MinIO&reg; data volume
   ##
   accessModes:
@@ -920,9 +931,9 @@ volumePermissions:
   ## @param volumePermissions.enabled Enable init container that changes the owner and group of the persistent volume(s) mountpoint to `runAsUser:fsGroup`
   ##
   enabled: false
-  ## @param volumePermissions.image.registry Init container volume-permissions image registry
-  ## @param volumePermissions.image.repository Init container volume-permissions image repository
-  ## @param volumePermissions.image.tag Init container volume-permissions image tag (immutable tags are recommended)
+  ## @param volumePermissions.image.registry [default: REGISTRY_NAME] Init container volume-permissions image registry
+  ## @param volumePermissions.image.repository [default: REPOSITORY_NAME/os-shell] Init container volume-permissions image repository
+  ## @skip volumePermissions.image.tag Init container volume-permissions image tag (immutable tags are recommended)
   ## @param volumePermissions.image.digest Init container volume-permissions image digest in the way sha256:aa.... Please note this parameter, if set, will override the tag
   ## @param volumePermissions.image.pullPolicy Init container volume-permissions image pull policy
   ## @param volumePermissions.image.pullSecrets Specify docker-registry secret names as an array
@@ -930,7 +941,7 @@ volumePermissions:
   image:
     registry: docker.io
     repository: bitnami/os-shell
-    tag: 11-debian-11-r11
+    tag: 11-debian-11-r90
     digest: ""
     pullPolicy: IfNotPresent
     ## Optionally specify an array of imagePullSecrets.
@@ -992,7 +1003,7 @@ serviceAccount:
 pdb:
   ## @param pdb.create Enable/disable a Pod Disruption Budget creation
   ##
-  create: false
+  create: true
   ## @param pdb.minAvailable Minimum number/percentage of pods that must still be available after the eviction
   ##
   minAvailable: 1
@@ -1012,7 +1023,7 @@ metrics:
   serviceMonitor:
     ## @param metrics.serviceMonitor.enabled If the operator is installed in your cluster, set to true to create a Service Monitor Entry
     ##
-    enabled: true
+    enabled: false
     ## @param metrics.serviceMonitor.namespace Namespace which Prometheus is running in
     ##
     namespace: ""
